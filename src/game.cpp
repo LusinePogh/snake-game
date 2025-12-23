@@ -14,7 +14,8 @@ Game::Game(int cols, int rows, int initialFoodCount)
       m_level(1),
       m_speed(0.12f),
       m_highScore(0),
-      m_highScoreFile("highscore.txt")
+      m_highScoreFile("highscore.txt"),
+      m_state(GameState::MENU)  // Start in menu
 {
     srand((unsigned)time(nullptr));
     // create initial foods (different values possible)
@@ -28,7 +29,13 @@ Game::Game(int cols, int rows, int initialFoodCount)
     m_foods.emplace_back(m_cols, m_rows, -10, true); // true = poison food
     
     LoadHighScore();
-    Restart();
+    // Don't call Restart() here - wait for user to start from menu
+    
+    // Initialize snake for preview (optional)
+    m_snake.clear();
+    m_snake.push_back({m_cols / 2, m_rows / 2});
+    m_snake.push_back({m_cols / 2 - 1, m_rows / 2});
+    m_snake.push_back({m_cols / 2 - 2, m_rows / 2});
 }
 
 void Game::Restart() {
@@ -63,6 +70,19 @@ void Game::Restart() {
     }
 }
 
+void Game::StartGame() {
+    Restart();
+    m_state = GameState::PLAYING;
+}
+
+GameState Game::GetState() const {
+    return m_state;
+}
+
+void Game::SetState(GameState state) {
+    m_state = state;
+}
+
 void Game::SetDirection(Dir d) {
     // no reverse
     if ((d == Dir::UP && m_dir == Dir::DOWN) ||
@@ -75,6 +95,7 @@ void Game::SetDirection(Dir d) {
 }
 
 void Game::Update() {
+    if (m_state != GameState::PLAYING) return;
     if (m_gameOver || m_paused) return;
 
     MoveHead();
@@ -166,6 +187,7 @@ void Game::MoveHead() {
     // Check collisions
     if (CheckSelfCollision(newHead) || CheckObstacleCollision(newHead)) {
         m_gameOver = true;
+        m_state = GameState::GAME_OVER;
         // save high score if beaten
         if (m_score > m_highScore) {
             m_highScore = m_score;
@@ -178,7 +200,15 @@ void Game::MoveHead() {
 
 bool Game::IsGameOver() const { return m_gameOver; }
 bool Game::IsPaused() const { return m_paused; }
-void Game::TogglePause() { if (!m_gameOver) m_paused = !m_paused; }
+void Game::TogglePause() { 
+    if (m_state == GameState::PLAYING && !m_gameOver) {
+        m_paused = !m_paused;
+        m_state = m_paused ? GameState::PAUSED : GameState::PLAYING;
+    } else if (m_state == GameState::PAUSED) {
+        m_paused = false;
+        m_state = GameState::PLAYING;
+    }
+}
 int Game::GetScore() const { return m_score; }
 int Game::GetLevel() const { return m_level; }
 int Game::GetHighScore() const { return m_highScore; }

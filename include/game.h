@@ -6,6 +6,13 @@
 
 enum class Dir { UP, DOWN, LEFT, RIGHT };
 
+enum class GameState {
+    MENU,       // Main menu with Start/Exit
+    PLAYING,    // Active gameplay
+    PAUSED,     // Game paused
+    GAME_OVER   // Game over screen
+};
+
 class Game {
 public:
     Game(int cols = 20, int rows = 20, int initialFoodCount = 2);
@@ -35,6 +42,11 @@ public:
 
     void SetDirection(Dir d);
 
+    // Game state management
+    GameState GetState() const;
+    void SetState(GameState state);
+    void StartGame();  // Transition from MENU to PLAYING
+
 private:
     void MoveHead();
     bool CheckSelfCollision(const Pos& newHead);
@@ -63,4 +75,6 @@ private:
 
     int m_highScore;
     std::string m_highScoreFile;
+
+    GameState m_state;  // Current game state
 };
