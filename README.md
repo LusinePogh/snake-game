@@ -47,6 +47,8 @@ cmake --build build
 
 ```
 snake-game/
+├── assets/
+│   └── Screenshot.png
 ├── include/           # Header files
 │   ├── pos.h         # Position struct (shared)
 │   ├── food.h        # Food class
