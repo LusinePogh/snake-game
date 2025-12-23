@@ -14,6 +14,10 @@ A classic Snake game built with C++ and raylib, featuring levels, obstacles, and
 - **High Score** tracking (saved to file)
 - **Smooth Controls** (WASD or Arrow keys)
 
+## Screenshot
+
+![Snake Game Screenshot](assets/Screenshot.png)
+
 ## How to Build
 
 ### Prerequisites
